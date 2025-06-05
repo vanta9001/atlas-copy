@@ -1,0 +1,137 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 210 11% 15%; /* #1E1E1E - VS Code Dark */
+  --foreground: 0 0% 80%; /* #CCCCCC */
+  --muted: 210 6% 37%; /* #6A6A6A */
+  --muted-foreground: 210 6% 45%; /* #737373 */
+  --popover: 210 11% 15%; /* #1E1E1E */
+  --popover-foreground: 0 0% 80%; /* #CCCCCC */
+  --card: 210 11% 15%; /* #252526 */
+  --card-foreground: 0 0% 80%; /* #CCCCCC */
+  --border: 210 6% 23%; /* #3C3C3C */
+  --input: 210 6% 23%; /* #3C3C3C */
+  --primary: 207 90% 54%; /* #007ACC - VS Code Blue */
+  --primary-foreground: 210 40% 98%; /* #F8FAFC */
+  --secondary: 210 6% 25%; /* #404040 */
+  --secondary-foreground: 0 0% 80%; /* #CCCCCC */
+  --accent: 210 6% 25%; /* #404040 */
+  --accent-foreground: 0 0% 80%; /* #CCCCCC */
+  --destructive: 0 84% 60%; /* #EF4444 */
+  --destructive-foreground: 0 0% 98%; /* #FAFAFA */
+  --ring: 207 90% 54%; /* #007ACC */
+  --radius: 0.5rem;
+  
+  /* VS Code specific colors */
+  --vscode-dark: 210 11% 15%; /* #1E1E1E */
+  --vscode-sidebar: 210 11% 15%; /* #252526 */
+  --vscode-border: 210 6% 23%; /* #3C3C3C */
+  --vscode-blue: 207 90% 54%; /* #007ACC */
+  --vscode-text: 0 0% 80%; /* #CCCCCC */
+  --vscode-muted: 210 6% 37%; /* #6A6A6A */
+  --vscode-active: 207 90% 22%; /* #094771 */
+  --vscode-hover: 210 6% 18%; /* #2A2D2E */
+}
+
+.dark {
+  --background: 210 11% 15%; /* #1E1E1E */
+  --foreground: 0 0% 80%; /* #CCCCCC */
+  --muted: 210 6% 37%; /* #6A6A6A */
+  --muted-foreground: 210 6% 45%; /* #737373 */
+  --popover: 210 11% 15%; /* #1E1E1E */
+  --popover-foreground: 0 0% 80%; /* #CCCCCC */
+  --card: 210 11% 15%; /* #252526 */
+  --card-foreground: 0 0% 80%; /* #CCCCCC */
+  --border: 210 6% 23%; /* #3C3C3C */
+  --input: 210 6% 23%; /* #3C3C3C */
+  --primary: 207 90% 54%; /* #007ACC */
+  --primary-foreground: 210 40% 98%; /* #F8FAFC */
+  --secondary: 210 6% 25%; /* #404040 */
+  --secondary-foreground: 0 0% 80%; /* #CCCCCC */
+  --accent: 210 6% 25%; /* #404040 */
+  --accent-foreground: 0 0% 80%; /* #CCCCCC */
+  --destructive: 0 84% 60%; /* #EF4444 */
+  --destructive-foreground: 0 0% 98%; /* #FAFAFA */
+  --ring: 207 90% 54%; /* #007ACC */
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  .font-code {
+    font-family: 'Fira Code', 'Consolas', monospace;
+  }
+}
+
+/* Custom VS Code-like styles */
+.vscode-dark {
+  background-color: hsl(var(--vscode-dark));
+}
+
+.vscode-sidebar {
+  background-color: hsl(var(--vscode-sidebar));
+}
+
+.vscode-border {
+  border-color: hsl(var(--vscode-border));
+}
+
+.vscode-blue {
+  color: hsl(var(--vscode-blue));
+}
+
+.vscode-text {
+  color: hsl(var(--vscode-text));
+}
+
+.vscode-muted {
+  color: hsl(var(--vscode-muted));
+}
+
+.vscode-active {
+  background-color: hsl(var(--vscode-active));
+}
+
+.vscode-hover:hover {
+  background-color: hsl(var(--vscode-hover));
+}
+
+/* Monaco Editor override */
+.monaco-editor {
+  background-color: hsl(var(--vscode-dark)) !important;
+}
+
+/* Terminal styles */
+.terminal {
+  background-color: hsl(var(--vscode-dark));
+  color: hsl(var(--vscode-text));
+  font-family: 'Fira Code', 'Consolas', monospace;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--vscode-dark));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--vscode-border));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--vscode-muted));
+}
