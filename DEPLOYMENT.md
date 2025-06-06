@@ -1,151 +1,33 @@
 # CodeForge IDE - Deployment Guide
 
 ## Overview
-This guide covers deploying your complete cloud IDE platform to Render (hosting) and Supabase (database).
+This guide covers deploying your complete cloud IDE platform to Render, using GitHub as the only storage backend (no database required).
 
 ## Prerequisites
 - GitHub account
 - Render account (free tier available)
-- Supabase account (free tier available)
 
-## Part 1: Database Setup with Supabase
+## Setup GitHub Storage
+1. Create a new (private) GitHub repository to store your app data (e.g., `codeforge-data`).
+2. Generate a GitHub personal access token with repo access.
+3. Note your GitHub username and the repository name.
 
-### 1. Create Supabase Project
-1. Go to [supabase.com](https://supabase.com)
-2. Sign in and click "New Project"
-3. Choose organization and enter project details:
-   - Name: `codeforge-ide`
-   - Database Password: Create a strong password (save this!)
-   - Region: Choose closest to your users
-4. Click "Create new project"
+## Environment Variables
+Set the following environment variables in Render:
+- `GITHUB_TOKEN`: Your GitHub personal access token
+- `GITHUB_USERNAME`: Your GitHub username
+- `GITHUB_REPOSITORY`: The name of your data repository
 
-### 2. Get Database Connection String
-1. In your Supabase dashboard, go to Settings → Database
-2. Find "Connection string" section
-3. Copy the "Transaction pooler" URI (recommended for serverless)
-4. Replace `[YOUR-PASSWORD]` with your actual database password
-5. Your final URL should look like:
-   ```
-   postgresql://postgres.xyz:[PASSWORD]@aws-0-us-west-1.pooler.supabase.com:6543/postgres
-   ```
+## Deploy to Render
+1. Connect your project repository to Render.
+2. Set the environment variables above in the Render dashboard.
+3. Deploy the app. Render will build and start the server.
+4. All user, project, and file data will be stored in your GitHub data repository.
 
-### 3. Set Up Database Tables
-The application will automatically create tables on first run, but you can also run them manually in the Supabase SQL editor:
-
-```sql
--- Users table
-CREATE TABLE IF NOT EXISTS users (
-  id SERIAL PRIMARY KEY,
-  username TEXT NOT NULL UNIQUE,
-  email TEXT NOT NULL UNIQUE,
-  password TEXT NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW() NOT NULL
-);
-
--- Projects table
-CREATE TABLE IF NOT EXISTS projects (
-  id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
-  description TEXT,
-  template TEXT NOT NULL DEFAULT 'blank',
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  created_at TIMESTAMP DEFAULT NOW() NOT NULL,
-  updated_at TIMESTAMP DEFAULT NOW() NOT NULL
-);
-
--- Files table
-CREATE TABLE IF NOT EXISTS files (
-  id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
-  path TEXT NOT NULL,
-  content TEXT DEFAULT '',
-  type TEXT NOT NULL,
-  project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
-  parent_id INTEGER REFERENCES files(id) ON DELETE CASCADE,
-  created_at TIMESTAMP DEFAULT NOW() NOT NULL,
-  updated_at TIMESTAMP DEFAULT NOW() NOT NULL
-);
-
--- Collaborators table
-CREATE TABLE IF NOT EXISTS collaborators (
-  id SERIAL PRIMARY KEY,
-  project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  role TEXT NOT NULL DEFAULT 'viewer',
-  created_at TIMESTAMP DEFAULT NOW() NOT NULL,
-  UNIQUE(project_id, user_id)
-);
-
--- Chat messages table
-CREATE TABLE IF NOT EXISTS chat_messages (
-  id SERIAL PRIMARY KEY,
-  project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  message TEXT NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW() NOT NULL
-);
-
--- Create indexes for performance
-CREATE INDEX IF NOT EXISTS idx_projects_user_id ON projects(user_id);
-CREATE INDEX IF NOT EXISTS idx_files_project_id ON files(project_id);
-CREATE INDEX IF NOT EXISTS idx_files_parent_id ON files(parent_id);
-CREATE INDEX IF NOT EXISTS idx_collaborators_project_id ON collaborators(project_id);
-CREATE INDEX IF NOT EXISTS idx_chat_messages_project_id ON chat_messages(project_id);
-
--- Create default admin user (optional)
-INSERT INTO users (username, email, password) 
-VALUES ('admin', 'admin@codeforge.app', 'password123')
-ON CONFLICT (username) DO NOTHING;
-```
-
-## Part 2: Hosting Setup with Render
-
-### 1. Prepare Your Repository
-1. Push your code to a GitHub repository
-2. Ensure these files are in your root directory:
-   - `render.yaml` (deployment configuration)
-   - `package.json` (with all dependencies)
-
-### 2. Deploy to Render
-1. Go to [render.com](https://render.com)
-2. Sign in with GitHub
-3. Click "New" → "Web Service"
-4. Connect your GitHub repository
-5. Configure the service:
-   - **Name**: `codeforge-ide`
-   - **Environment**: `Node`
-   - **Region**: Choose closest to your users
-   - **Branch**: `main` (or your default branch)
-   - **Build Command**: `npm install`
-   - **Start Command**: `npm start`
-
-### 3. Configure Environment Variables
-In Render dashboard, go to Environment tab and add:
-
-```
-NODE_ENV=production
-DATABASE_URL=[Your Supabase connection string from Part 1]
-```
-
-### 4. Deploy
-1. Click "Create Web Service"
-2. Render will automatically build and deploy your application
-3. Monitor the deploy logs for any issues
-4. Once complete, you'll get a URL like: `https://codeforge-ide.onrender.com`
-
-## Part 3: Custom Domain (Optional)
-
-### 1. Set Up Custom Domain in Render
-1. In your Render service dashboard, go to "Settings"
-2. Click "Add Custom Domain"
-3. Enter your domain (e.g., `ide.yourdomain.com`)
-4. Follow DNS configuration instructions
-
-### 2. Configure DNS
-Add a CNAME record in your domain provider:
-```
-CNAME ide your-render-app.onrender.com
-```
+## Notes
+- No database or Supabase setup is required.
+- All persistent data is managed as JSON files in your GitHub repository.
+- For local development, you can use the same environment variables or fall back to in-memory storage.
 
 ## Features Available After Deployment
 
@@ -173,7 +55,7 @@ Your deployed IDE includes all the features of Replit and GitHub Codespaces:
 ### Advanced Features
 - **Batch File Operations** for efficient file management
 - **WebSocket-based Real-time Updates**
-- **Persistent Project Storage** in Supabase
+- **Persistent Project Storage** in GitHub
 - **User Management** with authentication ready
 - **Extensible Architecture** for adding new features
 
@@ -181,38 +63,30 @@ Your deployed IDE includes all the features of Replit and GitHub Codespaces:
 
 ### Common Issues
 
-1. **Database Connection Errors**
-   - Verify DATABASE_URL is correct
-   - Check Supabase project is active
-   - Ensure password is properly encoded in URL
-
-2. **Build Failures**
+1. **Build Failures**
    - Check all dependencies are in package.json
    - Verify Node.js version compatibility
    - Review build logs in Render dashboard
 
-3. **WebSocket Issues**
+2. **WebSocket Issues**
    - Ensure WebSocket connections are enabled in Render
    - Check for proxy/firewall blocking WebSocket traffic
 
-4. **Performance Issues**
+3. **Performance Issues**
    - Consider upgrading Render plan for more resources
-   - Monitor database connection limits in Supabase
    - Optimize large file operations
 
 ### Support Resources
 - Render Documentation: https://render.com/docs
-- Supabase Documentation: https://supabase.com/docs
 - Project Issues: Check your GitHub repository issues
 
 ## Scaling Considerations
 
 ### For Production Use
 1. **Upgrade Plans**: Consider paid plans for better performance
-2. **Database Optimization**: Add proper indexes and query optimization
-3. **CDN Setup**: Use Cloudflare or similar for static assets
-4. **Monitoring**: Set up error tracking and performance monitoring
-5. **Backup Strategy**: Regular database backups via Supabase
+2. **CDN Setup**: Use Cloudflare or similar for static assets
+3. **Monitoring**: Set up error tracking and performance monitoring
+4. **Backup Strategy**: Regular backups of your GitHub repository
 
 ### Security Enhancements
 1. **Authentication**: Implement proper user authentication

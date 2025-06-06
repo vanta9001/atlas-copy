@@ -1,6 +1,3 @@
-import { drizzle } from "drizzle-orm/neon-http";
-import { neon } from "@neondatabase/serverless";
-import { eq, and } from "drizzle-orm";
 import { users, projects, files, collaborators, chatMessages, type User, type InsertUser, type Project, type InsertProject, type File, type InsertFile, type Collaborator, type InsertCollaborator, type ChatMessage, type InsertChatMessage } from "@shared/schema";
 
 export interface IStorage {
@@ -208,125 +205,9 @@ export class MemStorage implements IStorage {
   }
 }
 
-// Database storage implementation
-class DatabaseStorage implements IStorage {
-  private db;
-
-  constructor() {
-    const sql = neon(process.env.DATABASE_URL!);
-    this.db = drizzle(sql);
-  }
-
-  async getUser(id: number): Promise<User | undefined> {
-    const result = await this.db.select().from(users).where(eq(users.id, id));
-    return result[0];
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    const result = await this.db.select().from(users).where(eq(users.username, username));
-    return result[0];
-  }
-
-  async getUserByEmail(email: string): Promise<User | undefined> {
-    const result = await this.db.select().from(users).where(eq(users.email, email));
-    return result[0];
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const result = await this.db.insert(users).values(insertUser).returning();
-    return result[0];
-  }
-
-  async getProject(id: number): Promise<Project | undefined> {
-    const result = await this.db.select().from(projects).where(eq(projects.id, id));
-    return result[0];
-  }
-
-  async getProjectsByUserId(userId: number): Promise<Project[]> {
-    return await this.db.select().from(projects).where(eq(projects.userId, userId));
-  }
-
-  async createProject(insertProject: InsertProject): Promise<Project> {
-    const result = await this.db.insert(projects).values(insertProject).returning();
-    return result[0];
-  }
-
-  async updateProject(id: number, updates: Partial<Project>): Promise<Project | undefined> {
-    const result = await this.db.update(projects).set(updates).where(eq(projects.id, id)).returning();
-    return result[0];
-  }
-
-  async deleteProject(id: number): Promise<boolean> {
-    const result = await this.db.delete(projects).where(eq(projects.id, id));
-    return result.rowCount > 0;
-  }
-
-  async getFile(id: number): Promise<File | undefined> {
-    const result = await this.db.select().from(files).where(eq(files.id, id));
-    return result[0];
-  }
-
-  async getFilesByProjectId(projectId: number): Promise<File[]> {
-    return await this.db.select().from(files).where(eq(files.projectId, projectId));
-  }
-
-  async getFileByPath(projectId: number, path: string): Promise<File | undefined> {
-    const result = await this.db.select().from(files).where(
-      and(eq(files.projectId, projectId), eq(files.path, path))
-    );
-    return result[0];
-  }
-
-  async createFile(insertFile: InsertFile): Promise<File> {
-    const result = await this.db.insert(files).values(insertFile).returning();
-    return result[0];
-  }
-
-  async updateFile(id: number, updates: Partial<File>): Promise<File | undefined> {
-    const result = await this.db.update(files).set(updates).where(eq(files.id, id)).returning();
-    return result[0];
-  }
-
-  async deleteFile(id: number): Promise<boolean> {
-    const result = await this.db.delete(files).where(eq(files.id, id));
-    return result.rowCount > 0;
-  }
-
-  async getCollaboratorsByProjectId(projectId: number): Promise<Collaborator[]> {
-    return await this.db.select().from(collaborators).where(eq(collaborators.projectId, projectId));
-  }
-
-  async addCollaborator(insertCollaborator: InsertCollaborator): Promise<Collaborator> {
-    const result = await this.db.insert(collaborators).values(insertCollaborator).returning();
-    return result[0];
-  }
-
-  async removeCollaborator(projectId: number, userId: number): Promise<boolean> {
-    const result = await this.db.delete(collaborators).where(
-      and(eq(collaborators.projectId, projectId), eq(collaborators.userId, userId))
-    );
-    return result.rowCount > 0;
-  }
-
-  async getChatMessages(projectId: number): Promise<ChatMessage[]> {
-    return await this.db.select().from(chatMessages).where(eq(chatMessages.projectId, projectId));
-  }
-
-  async createChatMessage(insertMessage: InsertChatMessage): Promise<ChatMessage> {
-    const result = await this.db.insert(chatMessages).values(insertMessage).returning();
-    return result[0];
-  }
-
-  async getUserByEmail(email: string) {
-    const result = await this.db.select().from(users).where(eq(users.email, email));
-    return result[0];
-  }
-}
-
-// Use database storage if DATABASE_URL is available, otherwise use memory storage
+// Use GitHub storage if credentials are available, otherwise fall back to memory storage
 import { GitHubStorage } from "./github-storage.js";
 
-// Use GitHub storage if credentials are available, otherwise fall back to memory storage
 export const storage = (process.env.GITHUB_TOKEN && process.env.GITHUB_USERNAME && process.env.GITHUB_REPOSITORY) 
   ? new GitHubStorage({
       token: process.env.GITHUB_TOKEN,

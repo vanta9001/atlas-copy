@@ -29,7 +29,7 @@ A comprehensive cloud-based Integrated Development Environment that rivals Repli
 - **Batch File Operations** for efficient workspace management
 - **Real-time File Synchronization** across all connected clients
 - **Project Sharing** and collaboration management
-- **Persistent Storage** with database backup
+- **Persistent Storage** using GitHub repository
 - **Extensible Architecture** for custom plugins and features
 
 ## Technology Stack
@@ -46,21 +46,18 @@ A comprehensive cloud-based Integrated Development Environment that rivals Repli
 ### Backend
 - **Express.js** with TypeScript
 - **WebSocket (ws)** for real-time communication
-- **Drizzle ORM** with PostgreSQL support
 - **Zod** for runtime type validation
 - **Node.js 18+** with ES modules
 
-### Database
-- **PostgreSQL** via Supabase (free tier)
-- **Automatic migrations** and schema management
-- **Connection pooling** for optimal performance
+### Storage
+- **GitHub Repository** for all user, project, and file data (no external database required)
 
 ## Getting Started
 
 ### Prerequisites
 - Node.js 18 or higher
 - npm or yarn package manager
-- PostgreSQL database (Supabase recommended)
+- GitHub account and personal access token (for storage)
 
 ### Local Development
 1. Clone the repository
@@ -68,27 +65,21 @@ A comprehensive cloud-based Integrated Development Environment that rivals Repli
    ```bash
    npm install
    ```
-3. Set up environment variables (see deployment guide)
+3. Set up environment variables for GitHub storage:
+   ```env
+   GITHUB_TOKEN=your_github_token
+   GITHUB_USERNAME=your_github_username
+   GITHUB_REPOSITORY=your_repo_name
+   ```
 4. Start development server:
    ```bash
    npm run dev
    ```
 5. Open http://localhost:5000 in your browser
 
-### Environment Variables
-```env
-NODE_ENV=development
-DATABASE_URL=postgresql://user:password@host:port/database
-```
-
 ## Deployment
 
-For complete deployment instructions to Render and Supabase, see [DEPLOYMENT.md](./DEPLOYMENT.md).
-
-### Quick Deploy Summary
-1. **Database**: Create Supabase project and get connection string
-2. **Hosting**: Deploy to Render with automatic builds
-3. **Domain**: Optional custom domain configuration
+For deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
 ## Project Structure
 
@@ -103,7 +94,7 @@ For complete deployment instructions to Render and Supabase, see [DEPLOYMENT.md]
 ├── server/                 # Backend Express application
 │   ├── index.ts           # Server entry point
 │   ├── routes.ts          # API routes and WebSocket handling
-│   ├── storage.ts         # Database operations
+│   ├── storage.ts         # GitHub storage operations
 │   └── migrations.ts      # Database schema migrations
 ├── shared/                # Shared types and schemas
 │   └── schema.ts          # Database schema definitions

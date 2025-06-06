@@ -9,7 +9,11 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: DATABASE_URL
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: GITHUB_USERNAME
+        sync: false
+      - key: GITHUB_REPOSITORY
         sync: false
     routes:
       - type: rewrite
