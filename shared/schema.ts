@@ -1,96 +1,93 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
-  email: text("email").notNull().unique(),
-  password: text("password").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+// User type and schema
+export const insertUserSchema = z.object({
+  username: z.string().min(3),
+  email: z.string().email(),
+  password: z.string().min(6),
 });
 
-export const projects = pgTable("projects", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  description: text("description"),
-  template: text("template").notNull().default("blank"),
-  userId: integer("user_id").notNull().references(() => users.id),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  password: string;
+  createdAt: Date;
+}
 
-export const files: any = pgTable("files", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  path: text("path").notNull(),
-  content: text("content").default(""),
-  type: text("type").notNull(), // 'file' or 'folder'
-  projectId: integer("project_id").notNull().references(() => projects.id),
-  parentId: integer("parent_id"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
-
-export const collaborators = pgTable("collaborators", {
-  id: serial("id").primaryKey(),
-  projectId: integer("project_id").notNull().references(() => projects.id),
-  userId: integer("user_id").notNull().references(() => users.id),
-  role: text("role").notNull().default("viewer"), // 'owner', 'editor', 'viewer'
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-export const chatMessages = pgTable("chat_messages", {
-  id: serial("id").primaryKey(),
-  projectId: integer("project_id").notNull().references(() => projects.id),
-  userId: integer("user_id").notNull().references(() => users.id),
-  message: text("message").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// Insert schemas
-export const insertUserSchema = createInsertSchema(users).omit({
-  id: true,
-  createdAt: true,
-});
-
-export const insertProjectSchema = createInsertSchema(projects).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-}).extend({
-  template: z.string().default("blank"),
+// Project type and schema
+export const insertProjectSchema = z.object({
+  name: z.string().min(1),
   description: z.string().nullable().optional(),
+  template: z.string().default("blank"),
+  userId: z.number(),
 });
 
-export const insertFileSchema = createInsertSchema(files).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+export interface Project {
+  id: number;
+  name: string;
+  description?: string | null;
+  template: string;
+  userId: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// File type and schema
+export const insertFileSchema = z.object({
+  name: z.string().min(1),
+  path: z.string().min(1),
+  content: z.string().optional(),
+  type: z.string(),
+  projectId: z.number(),
+  parentId: z.number().optional(),
 });
 
-export const insertCollaboratorSchema = createInsertSchema(collaborators).omit({
-  id: true,
-  createdAt: true,
+export interface File {
+  id: number;
+  name: string;
+  path: string;
+  content?: string;
+  type: string;
+  projectId: number;
+  parentId?: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Collaborator type and schema
+export const insertCollaboratorSchema = z.object({
+  projectId: z.number(),
+  userId: z.number(),
+  role: z.string().default("viewer"),
 });
 
-export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({
-  id: true,
-  createdAt: true,
+export interface Collaborator {
+  id: number;
+  projectId: number;
+  userId: number;
+  role: string;
+  createdAt: Date;
+}
+
+// ChatMessage type and schema
+export const insertChatMessageSchema = z.object({
+  projectId: z.number(),
+  userId: z.number(),
+  message: z.string().min(1),
 });
 
-// Types
-export type User = typeof users.$inferSelect;
+export interface ChatMessage {
+  id: number;
+  projectId: number;
+  userId: number;
+  message: string;
+  createdAt: Date;
+}
+
+// Type aliases for insert types
 export type InsertUser = z.infer<typeof insertUserSchema>;
-
-export type Project = typeof projects.$inferSelect;
 export type InsertProject = z.infer<typeof insertProjectSchema>;
-
-export type File = typeof files.$inferSelect;
 export type InsertFile = z.infer<typeof insertFileSchema>;
-
-export type Collaborator = typeof collaborators.$inferSelect;
 export type InsertCollaborator = z.infer<typeof insertCollaboratorSchema>;
-
-export type ChatMessage = typeof chatMessages.$inferSelect;
 export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
