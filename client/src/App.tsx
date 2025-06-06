@@ -26,7 +26,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="h-screen overflow-hidden bg-background text-foreground">
+        <div className="h-screen overflow-auto bg-background text-foreground">
           <Router />
         </div>
         <Toaster />

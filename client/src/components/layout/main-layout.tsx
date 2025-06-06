@@ -31,7 +31,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[#1E1E1E] text-[#CCCCCC] font-ui overflow-hidden">
+    <div className="flex flex-col h-screen bg-[#1E1E1E] text-[#CCCCCC] font-ui overflow-auto">
       {/* Top Navigation */}
       <TopNavigation 
         onToggleLeftSidebar={toggleLeftSidebar}
@@ -40,7 +40,7 @@ export function MainLayout({ children }: MainLayoutProps) {
       />
 
       {/* Main Content Area */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-auto">
         {/* Left Sidebar */}
         {isLeftSidebarOpen && (
           <>
