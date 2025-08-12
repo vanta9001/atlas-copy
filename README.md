@@ -1,4 +1,4 @@
-# CodeForge - Free Cloud IDE Platform
+# Atlas - Free Cloud IDE Platform
 
 A comprehensive cloud-based Integrated Development Environment that rivals Replit and GitHub Codespaces, built with React, Express, and modern web technologies.
 
