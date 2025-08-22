@@ -183,4 +183,4 @@ For feature requests or bug reports, please create an issue in the repository.
 
 ---
 
-**CodeForge** - Making cloud development accessible to everyone, completely free.
+**Atlas** - Making cloud development accessible to everyone, completely free.
