@@ -1,1 +1,4 @@
-// This file is no longer needed. (delete the file)
+// Database migrations placeholder
+export function runMigrations() {
+  console.log('Running migrations...');
+}

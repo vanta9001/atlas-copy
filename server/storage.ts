@@ -1,4 +1,4 @@
-import { users, projects, files, collaborators, chatMessages, type User, type InsertUser, type Project, type InsertProject, type File, type InsertFile, type Collaborator, type InsertCollaborator, type ChatMessage, type InsertChatMessage } from "@shared/schema";
+import { type User, type InsertUser, type Project, type InsertProject, type File, type InsertFile, type Collaborator, type InsertCollaborator, type ChatMessage, type InsertChatMessage } from "../shared/schema";
 
 export interface IStorage {
   // User operations
