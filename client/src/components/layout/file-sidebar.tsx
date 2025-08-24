@@ -49,8 +49,7 @@ export function FileSidebar({
         <div className="flex-1 overflow-auto">
           <FileTree
             files={files}
-            onFileSelect={onFileSelect}
-            selectedFileId={selectedFileId}
+            onFileSelect={onFileSelect || (() => {})}
           />
         </div>
       )}

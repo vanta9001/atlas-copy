@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "../components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import { Input } from "../components/ui/input";
+import { Badge } from "../components/ui/badge";
 import { 
   Plus, 
   Search, 
@@ -16,18 +16,19 @@ import {
   Calendar,
   Play
 } from "lucide-react";
-import { useProjects, useCreateProject } from "@/hooks/use-project";
-import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useProjects, useCreateProject } from "../hooks/use-project";
+import { useToast } from "../hooks/use-toast";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
+import { Label } from "../components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../components/ui/form";
+import { queryClient } from "../lib/queryClient";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { apiRequest } from "../lib/api";
+import type { Project } from "../../../shared/schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { queryClient } from "@/lib/queryClient";
-import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/api";
 
 const createProjectSchema = z.object({
   name: z.string().min(1, "Project name is required"),
@@ -67,15 +68,15 @@ export default function Dashboard() {
     },
   });
 
-  const filteredProjects = projects.filter(project =>
+  const filteredProjects = (projects as any[]).filter((project: any) =>
     project.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const onCreateProject = async (data: CreateProjectForm) => {
     try {
       const project = await createProjectMutation.mutateAsync({
-        ...data,
-        userId: currentUser.id,
+        name: data.name,
+        description: data.description || "",
         template: data.template,
       });
 
@@ -336,7 +337,7 @@ export default function Dashboard() {
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProjects.map((project) => (
+              {filteredProjects.map((project: any) => (
                 <Card key={project.id} className="hover:shadow-lg transition-shadow cursor-pointer group">
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">

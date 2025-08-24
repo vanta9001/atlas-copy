@@ -21,17 +21,30 @@ export function EditorArea({
   return (
     <div className="flex flex-col h-full bg-[#1E1E1E]">
       <EditorTabs
-        files={openFiles}
-        activeFileId={activeFileId}
-        onCloseFile={onCloseFile}
-        onSelectFile={onSelectFile}
+        openFiles={openFiles.map(f => ({
+          id: f.id,
+          name: f.name,
+          path: f.path,
+          content: f.content || '',
+          isActive: f.id === activeFileId,
+          isDirty: false
+        }))}
+        onSwitchTab={(fileId) => onSelectFile?.(fileId)}
+        onCloseTab={(fileId) => onCloseFile?.(fileId)}
       />
       
       <div className="flex-1 overflow-hidden">
         {activeFile ? (
           <Monaco
-            file={activeFile}
-            onChange={(content) => onFileChange?.(activeFile.id, content)}
+            file={activeFile ? {
+              id: activeFile.id,
+              name: activeFile.name,
+              path: activeFile.path,
+              content: activeFile.content || '',
+              isActive: true,
+              isDirty: false
+            } : null}
+            onContentChange={(fileId, content) => onFileChange?.(fileId, content)}
           />
         ) : (
           <div className="flex items-center justify-center h-full text-[#6A6A6A]">

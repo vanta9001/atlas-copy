@@ -105,13 +105,40 @@ export function useFileOperations(projectId: number | null) {
   };
 }
 
+export function useUpdateFile() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, updates }: { id: number; updates: Partial<File> }) => {
+      const response = await fetch(`/api/files/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updates),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update file");
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["/api/projects"],
+      });
+    },
+  });
+}
+
 function buildFileTree(files: File[]): FileTreeItem[] {
   const fileMap = new Map<string, FileTreeItem>();
   const roots: FileTreeItem[] = [];
 
   // First pass: create all file objects
   files.forEach(file => {
-    fileMap.set(file.path, { ...file, children: file.isDirectory ? [] : undefined });
+    fileMap.set(file.path, { ...file, children: (file.isDirectory || file.type === 'directory') ? [] : undefined });
   });
 
   // Second pass: build the tree structure

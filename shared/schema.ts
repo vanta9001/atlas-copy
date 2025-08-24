@@ -51,6 +51,7 @@ export interface File {
   type: string;
   projectId: number;
   parentId?: number;
+  isDirectory?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

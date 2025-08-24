@@ -257,35 +257,53 @@ export default function IDE() {
   return (
     <div className="flex flex-col h-screen">
       <TopNavigation
-        currentProject={project}
-        onOpenProjectModal={() => setIsProjectModalOpen(true)}
-        onNewFile={handleNewFile}
-        onNewFolder={handleNewFolder}
-        onSave={saveFile}
+        projectName={project?.name}
+        projectId={projectId || undefined}
         onRun={runCode}
         onStop={stopExecution}
-        isRunning={isRunning}
+        onRestart={() => {}}
       />
 
       <div className="flex flex-1 overflow-hidden">
         <FileSidebar
-          files={files}
-          onFileSelect={openFile}
+          files={files.map(f => ({
+            id: f.id,
+            name: f.name,
+            path: f.path,
+            type: (f.isDirectory || f.type === 'directory') ? 'folder' as const : 'file' as const,
+            content: f.content,
+            children: []
+          }))}
+          onFileSelect={(file) => openFile(files.find(f => f.id === file.id)!)}
           width={sidebarWidth}
           onWidthChange={setSidebarWidth}
-          projectId={projectId}
+          projectId={projectId || 0}
         />
 
         <div className="flex-1 flex flex-col">
           <EditorTabs
-            openFiles={openFiles}
+            openFiles={openFiles.map(f => ({
+              id: f.id,
+              name: f.name,
+              path: f.path,
+              content: f.content || '',
+              isActive: f.isActive,
+              isDirty: f.isDirty
+            }))}
             onSwitchTab={switchTab}
             onCloseTab={closeFile}
           />
 
           <div className="flex flex-1 overflow-hidden">
             <Monaco
-              file={activeFile}
+              file={activeFile ? {
+                id: activeFile.id,
+                name: activeFile.name,
+                path: activeFile.path,
+                content: activeFile.content || '',
+                isActive: activeFile.isActive,
+                isDirty: activeFile.isDirty
+              } : null}
               onContentChange={updateFileContent}
             />
 
@@ -308,7 +326,14 @@ export default function IDE() {
       )}
 
       <StatusBar
-        activeFile={activeFile}
+        activeFile={activeFile ? {
+          id: activeFile.id,
+          name: activeFile.name,
+          path: activeFile.path,
+          content: activeFile.content || '',
+          isActive: activeFile.isActive,
+          isDirty: activeFile.isDirty
+        } : null}
         project={project}
       />
 

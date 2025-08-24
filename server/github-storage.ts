@@ -78,12 +78,12 @@ export class GitHubStorage implements IStorage {
 
   async getUserByUsername(username: string): Promise<User | undefined> {
     const users = await this.getFileContent('data/users.json') || {};
-    return Object.values(users).find((user: any) => user.username === username);
+    return Object.values(users as Record<string, any>).find((user: any) => user.username === username) as User | undefined;
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
     const users = await this.getFileContent('data/users.json') || {};
-    return Object.values(users).find((user: any) => user.email === email);
+    return Object.values(users as Record<string, any>).find((user: any) => user.email === email) as User | undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
@@ -98,7 +98,7 @@ export class GitHubStorage implements IStorage {
 
     users[id] = user;
     const sha = await this.getFileSha('data/users.json');
-    await this.saveFileContent('data/users.json', users, sha);
+    await this.saveFileContent('data/users.json', users, sha || undefined);
     
     return user;
   }
@@ -111,7 +111,7 @@ export class GitHubStorage implements IStorage {
 
   async getProjectsByUserId(userId: number): Promise<Project[]> {
     const projects = await this.getFileContent('data/projects.json') || {};
-    return Object.values(projects).filter((project: any) => project.userId === userId);
+    return Object.values(projects as Record<string, any>).filter((project: any) => project.userId === userId) as Project[];
   }
 
   async createProject(insertProject: InsertProject): Promise<Project> {
@@ -127,7 +127,7 @@ export class GitHubStorage implements IStorage {
 
     projects[id] = project;
     const sha = await this.getFileSha('data/projects.json');
-    await this.saveFileContent('data/projects.json', projects, sha);
+    await this.saveFileContent('data/projects.json', projects, sha || undefined);
     
     return project;
   }
@@ -146,7 +146,7 @@ export class GitHubStorage implements IStorage {
 
     projects[id] = updatedProject;
     const sha = await this.getFileSha('data/projects.json');
-    await this.saveFileContent('data/projects.json', projects, sha);
+    await this.saveFileContent('data/projects.json', projects, sha || undefined);
     
     return updatedProject;
   }
@@ -158,7 +158,7 @@ export class GitHubStorage implements IStorage {
 
     delete projects[id];
     const sha = await this.getFileSha('data/projects.json');
-    await this.saveFileContent('data/projects.json', projects, sha);
+    await this.saveFileContent('data/projects.json', projects, sha || undefined);
     
     return true;
   }
@@ -171,14 +171,14 @@ export class GitHubStorage implements IStorage {
 
   async getFilesByProjectId(projectId: number): Promise<File[]> {
     const files = await this.getFileContent('data/files.json') || {};
-    return Object.values(files).filter((file: any) => file.projectId === projectId);
+    return Object.values(files as Record<string, any>).filter((file: any) => file.projectId === projectId) as File[];
   }
 
   async getFileByPath(projectId: number, path: string): Promise<File | undefined> {
     const files = await this.getFileContent('data/files.json') || {};
-    return Object.values(files).find((file: any) => 
+    return Object.values(files as Record<string, any>).find((file: any) => 
       file.projectId === projectId && file.path === path
-    );
+    ) as File | undefined;
   }
 
   async createFile(insertFile: InsertFile): Promise<File> {
@@ -194,7 +194,7 @@ export class GitHubStorage implements IStorage {
 
     files[id] = file;
     const sha = await this.getFileSha('data/files.json');
-    await this.saveFileContent('data/files.json', files, sha);
+    await this.saveFileContent('data/files.json', files, sha || undefined);
     
     return file;
   }
@@ -213,7 +213,7 @@ export class GitHubStorage implements IStorage {
 
     files[id] = updatedFile;
     const sha = await this.getFileSha('data/files.json');
-    await this.saveFileContent('data/files.json', files, sha);
+    await this.saveFileContent('data/files.json', files, sha || undefined);
     
     return updatedFile;
   }
@@ -225,9 +225,75 @@ export class GitHubStorage implements IStorage {
 
     delete files[id];
     const sha = await this.getFileSha('data/files.json');
-    await this.saveFileContent('data/files.json', files, sha);
+    await this.saveFileContent('data/files.json', files, sha || undefined);
     
     return true;
+  }
+
+  // Collaborator operations
+  async getCollaboratorsByProjectId(projectId: number): Promise<Collaborator[]> {
+    const collaborators = await this.getFileContent('data/collaborators.json') || {};
+    return Object.values(collaborators as Record<string, any>).filter((collab: any) => collab.projectId === projectId) as Collaborator[];
+  }
+
+  async addCollaborator(insertCollaborator: InsertCollaborator): Promise<Collaborator> {
+    const collaborators = await this.getFileContent('data/collaborators.json') || {};
+    const id = Math.max(0, ...Object.keys(collaborators).map(Number)) + 1;
+    
+    const collaborator: Collaborator = {
+      id,
+      projectId: insertCollaborator.projectId,
+      userId: insertCollaborator.userId,
+      role: insertCollaborator.role || "viewer",
+      createdAt: new Date(),
+    };
+
+    collaborators[id] = collaborator;
+    const sha = await this.getFileSha('data/collaborators.json');
+    await this.saveFileContent('data/collaborators.json', collaborators, sha || undefined);
+    
+    return collaborator;
+  }
+
+  async removeCollaborator(projectId: number, userId: number): Promise<boolean> {
+    const collaborators = await this.getFileContent('data/collaborators.json') || {};
+    const collaboratorEntry = Object.entries(collaborators).find(([_, collab]: [string, any]) => 
+      collab.projectId === projectId && collab.userId === userId
+    );
+    
+    if (!collaboratorEntry) return false;
+    
+    delete collaborators[collaboratorEntry[0]];
+    const sha = await this.getFileSha('data/collaborators.json');
+    await this.saveFileContent('data/collaborators.json', collaborators, sha || undefined);
+    
+    return true;
+  }
+
+  // Chat operations
+  async getChatMessages(projectId: number): Promise<ChatMessage[]> {
+    const messages = await this.getFileContent('data/messages.json') || {};
+    return Object.values(messages as Record<string, any>).filter((msg: any) => msg.projectId === projectId)
+      .sort((a: any, b: any) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()) as ChatMessage[];
+  }
+
+  async createChatMessage(insertMessage: InsertChatMessage): Promise<ChatMessage> {
+    const messages = await this.getFileContent('data/messages.json') || {};
+    const id = Math.max(0, ...Object.keys(messages).map(Number)) + 1;
+    
+    const message: ChatMessage = {
+      id,
+      projectId: insertMessage.projectId,
+      userId: insertMessage.userId,
+      message: insertMessage.message,
+      createdAt: new Date(),
+    };
+
+    messages[id] = message;
+    const sha = await this.getFileSha('data/messages.json');
+    await this.saveFileContent('data/messages.json', messages, sha || undefined);
+    
+    return message;
   }
 
   // Initialize repository structure
@@ -238,6 +304,8 @@ export class GitHubStorage implements IStorage {
         { path: 'data/users.json', content: '{}' },
         { path: 'data/projects.json', content: '{}' },
         { path: 'data/files.json', content: '{}' },
+        { path: 'data/collaborators.json', content: '{}' },
+        { path: 'data/messages.json', content: '{}' },
         { path: 'README.md', content: '# Atlas IDE Data Repository\n\nThis repository stores Atlas IDE user data.' }
       ];
 
