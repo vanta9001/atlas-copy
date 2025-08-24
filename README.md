@@ -1,6 +1,8 @@
-# Atlas - Free Cloud IDE Platform
+# CodeForge IDE - Professional Code Editor
 
-A comprehensive cloud-based Integrated Development Environment that rivals Replit and GitHub Codespaces, built with React, Express, and modern web technologies.
+A modern, collaborative web-based IDE built with React, TypeScript, and Express. Deploy instantly with Vercel.
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/codeforge-ide)
 
 ## Features
 
@@ -25,12 +27,15 @@ A comprehensive cloud-based Integrated Development Environment that rivals Repli
 - **File Type Icons** and syntax highlighting
 - **Responsive Design** optimized for desktop and mobile
 
-### Advanced Features
-- **Batch File Operations** for efficient workspace management
-- **Real-time File Synchronization** across all connected clients
-- **Project Sharing** and collaboration management
-- **Persistent Storage** using GitHub repository
-- **Extensible Architecture** for custom plugins and features
+## Quick Deploy to Vercel
+
+1. Click the "Deploy with Vercel" button above
+2. Connect your GitHub account
+3. Set environment variables (optional):
+   - `GITHUB_TOKEN` - For GitHub integration
+   - `GITHUB_USERNAME` - Your GitHub username  
+   - `GITHUB_REPOSITORY` - Repository for storing projects
+4. Deploy! Your IDE will be live in minutes.
 
 ## Technology Stack
 
@@ -49,37 +54,28 @@ A comprehensive cloud-based Integrated Development Environment that rivals Repli
 - **Zod** for runtime type validation
 - **Node.js 18+** with ES modules
 
-### Storage
-- **GitHub Repository** for all user, project, and file data (no external database required)
+### Storage & Deployment
+- **GitHub Repository** for all user, project, and file data
+- **Vercel** for instant deployment and scaling
+- **Serverless Functions** for API endpoints
 
-## Getting Started
+## Local Development
 
 ### Prerequisites
 - Node.js 18 or higher
 - npm or yarn package manager
-- GitHub account and personal access token (for storage)
 
-### Local Development
+### Setup
 1. Clone the repository
 2. Install dependencies:
    ```bash
    npm install
    ```
-3. Set up environment variables for GitHub storage:
-   ```env
-   GITHUB_TOKEN=your_github_token
-   GITHUB_USERNAME=your_github_username
-   GITHUB_REPOSITORY=your_repo_name
-   ```
-4. Start development server:
+3. Start development server:
    ```bash
    npm run dev
    ```
-5. Open http://localhost:5000 in your browser
-
-## Deployment
-
-For deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md).
+4. Open http://localhost:8080 in your browser
 
 ## Project Structure
 
@@ -94,11 +90,11 @@ For deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 ├── server/                 # Backend Express application
 │   ├── index.ts           # Server entry point
 │   ├── routes.ts          # API routes and WebSocket handling
-│   ├── storage.ts         # GitHub storage operations
-│   └── migrations.ts      # Database schema migrations
+│   └── storage.ts         # GitHub storage operations
+├── api/                   # Vercel serverless functions
 ├── shared/                # Shared types and schemas
-│   └── schema.ts          # Database schema definitions
-└── deployment files      # Configuration for hosting platforms
+├── vercel.json            # Vercel deployment configuration
+└── vite.config.ts         # Build configuration
 ```
 
 ## API Documentation
@@ -120,12 +116,18 @@ For deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 ### Development Tools
 - `POST /api/projects/:id/terminal/execute` - Execute terminal command
 - `POST /api/projects/:id/analyze` - Analyze code for issues
-- `POST /api/projects/:id/git/:operation` - Git operations
 
 ### Collaboration
 - `GET /api/projects/:id/chat` - Get chat messages
 - `POST /api/projects/:id/chat` - Send chat message
 - WebSocket `/ws` - Real-time collaboration events
+
+## Environment Variables (Optional)
+
+For GitHub integration:
+- `GITHUB_TOKEN` - Your GitHub personal access token
+- `GITHUB_USERNAME` - Your GitHub username  
+- `GITHUB_REPOSITORY` - Repository name for storing projects
 
 ## Contributing
 
@@ -134,53 +136,12 @@ For deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 2. Use existing component patterns
 3. Maintain responsive design principles
 4. Write self-documenting code
-5. Test WebSocket functionality thoroughly
-
-### Code Style
-- Use TypeScript strict mode
-- Follow existing naming conventions
-- Implement proper error handling
-- Document complex logic with comments
-
-## Architecture Decisions
-
-### Why These Technologies?
-- **Monaco Editor**: Industry-standard code editor with VS Code features
-- **WebSocket**: Low-latency real-time collaboration
-- **Drizzle ORM**: Type-safe database operations
-- **Supabase**: Managed PostgreSQL with real-time features
-- **Render**: Simple deployment with automatic scaling
-
-### Performance Optimizations
-- **Connection pooling** for database efficiency
-- **WebSocket message batching** for reduced network overhead
-- **Lazy loading** for large file operations
-- **Optimistic updates** for responsive UI
-
-## Security Considerations
-
-### Current Implementation
-- Input validation with Zod schemas
-- SQL injection prevention via ORM
-- WebSocket message validation
-- Environment variable protection
-
-### Production Recommendations
-- Implement proper authentication
-- Add rate limiting for API endpoints
-- Use HTTPS for all connections
-- Regular security audits
+5. Test functionality thoroughly
 
 ## License
 
 MIT License - see LICENSE file for details
 
-## Support
-
-For deployment issues, check the troubleshooting section in [DEPLOYMENT.md](./DEPLOYMENT.md).
-
-For feature requests or bug reports, please create an issue in the repository.
-
 ---
 
-**Atlas** - Making cloud development accessible to everyone, completely free.
+**CodeForge IDE** - Professional code editing in the browser, deployed instantly with Vercel.
