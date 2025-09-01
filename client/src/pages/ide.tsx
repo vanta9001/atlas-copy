@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { useRoute } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import TopNavigation from "@/components/layout/TopNavigation";
-import FileSidebar from "@/components/sidebar/FileSidebar";
+import { TopNavigation } from "@/components/layout/top-navigation";
+import { FileSidebar } from "@/components/layout/file-sidebar";
 import EditorTabs from "@/components/editor/EditorTabs";
 import Monaco from "@/components/editor/Monaco";
 import TerminalPanel from "@/components/panels/TerminalPanel";
 import RightPanel from "@/components/panels/RightPanel";
-import StatusBar from "@/components/layout/StatusBar";
+import { StatusBar } from "@/components/layout/status-bar";
 import ProjectModal from "@/components/modals/ProjectModal";
 import useWebSocket from "@/hooks/useWebSocket";
 import type { File, Project } from "@shared/schema";
@@ -257,27 +257,23 @@ export default function IDE() {
   return (
     <div className="flex flex-col h-screen">
       <TopNavigation
-        projectName={project?.name}
-        projectId={projectId || undefined}
+        onToggleLeftSidebar={() => {}}
+        onToggleRightPanel={() => setIsRightPanelOpen(!isRightPanelOpen)}
+        onToggleTerminal={() => setIsTerminalOpen(!isTerminalOpen)}
+        onNewFile={createNewFile}
+        onNewFolder={createNewFolder}
+        onSave={saveFile}
         onRun={runCode}
         onStop={stopExecution}
-        onRestart={() => {}}
+        isRunning={isRunning}
       />
 
       <div className="flex flex-1 overflow-hidden">
         <FileSidebar
-          files={files.map(f => ({
-            id: f.id,
-            name: f.name,
-            path: f.path,
-            type: (f.isDirectory || f.type === 'directory') ? 'folder' as const : 'file' as const,
-            content: f.content,
-            children: []
-          }))}
+          files={files}
           onFileSelect={(file) => openFile(files.find(f => f.id === file.id)!)}
           width={sidebarWidth}
-          onWidthChange={setSidebarWidth}
-          projectId={projectId || 0}
+          selectedFileId={activeFile?.id || null}
         />
 
         <div className="flex-1 flex flex-col">
@@ -326,15 +322,10 @@ export default function IDE() {
       )}
 
       <StatusBar
-        activeFile={activeFile ? {
-          id: activeFile.id,
-          name: activeFile.name,
-          path: activeFile.path,
-          content: activeFile.content || '',
-          isActive: activeFile.isActive,
-          isDirty: activeFile.isDirty
-        } : null}
-        project={project}
+        currentFile={activeFile?.name}
+        line={1}
+        column={1}
+        language="javascript"
       />
 
       {isProjectModalOpen && (
